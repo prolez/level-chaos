@@ -456,7 +456,8 @@ class SynergyUI {
         `;
         this.container.appendChild(stats);
         this.statsDisplay = stats;
-        this.updateStatsDisplay();
+        // Delay initial update to allow system initialization
+        setTimeout(() => this.updateStatsDisplay(), 100);
     }
     
     updateCardDisplay() {

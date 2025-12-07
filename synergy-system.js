@@ -230,7 +230,12 @@ class CardDatabase {
         const available = Object.values(this.cards)
             .filter(card => !excludeIds.includes(card.id));
         
-        const shuffled = available.sort(() => Math.random() - 0.5);
+        // Fisher-Yates shuffle for proper randomization
+        const shuffled = [...available];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
         return shuffled.slice(0, count);
     }
     
@@ -640,5 +645,10 @@ if (document.readyState === 'loading') {
 
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { SynergySystem, CardDatabase, CardInventory, EffectManager, GameState, SynergyUI };
+    try {
+        module.exports = { SynergySystem, CardDatabase, CardInventory, EffectManager, GameState, SynergyUI };
+    } catch (e) {
+        // Module exports not supported in this environment
+        console.warn('[Synergy System] Module exports not supported:', e);
+    }
 }

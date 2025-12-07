@@ -225,9 +225,16 @@
         
         function updateLog() {
             const logEl = document.getElementById('event-log');
-            logEl.innerHTML = eventLog.slice(-50).reverse().map(entry => 
-                `<div class="log-entry ${entry.type}">[${entry.timestamp}] ${entry.message}</div>`
-            ).join('');
+            logEl.innerHTML = eventLog.slice(-50).reverse().map(entry => {
+                // Escape HTML to prevent XSS
+                const escapedMessage = entry.message
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+                return `<div class="log-entry ${entry.type}">[${entry.timestamp}] ${escapedMessage}</div>`;
+            }).join('');
         }
         
         function clearLog() {

@@ -83,10 +83,15 @@ class GameIntegration {
     setupGameMonitor() {
         // Monitor for level changes and deaths
         // This is a heuristic approach since we don't have access to game internals
+        // TODO: Implement proper game event detection once game internals are accessible
         
+        // For now, disabled to avoid unnecessary polling
+        // Can be enabled when detectLevelChange is properly implemented
+        
+        /* 
         let lastGameState = this.captureGameState();
         
-        setInterval(() => {
+        this.monitorInterval = setInterval(() => {
             const currentState = this.captureGameState();
             
             // Detect significant changes that might indicate level complete or death
@@ -96,6 +101,7 @@ class GameIntegration {
             
             lastGameState = currentState;
         }, 500);
+        */
     }
     
     captureGameState() {

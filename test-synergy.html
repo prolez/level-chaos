@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Chaos - Test du Système de Synergie</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #667eea;
+        }
+        
+        .header p {
+            color: #888;
+        }
+        
+        .test-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #10B981;
+            border-bottom: 2px solid #10B981;
+            padding-bottom: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .test-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-button.primary { background: #3B82F6; }
+        .test-button.success { background: #10B981; }
+        .test-button.danger { background: #EF4444; }
+        .test-button.warning { background: #F59E0B; }
+        .test-button.info { background: #8B5CF6; }
+        
+        .card-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .card-item {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .card-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .card-item h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+        }
+        
+        .card-item p {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .card-item .meta {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 15px;
+        }
+        
+        .log-entry {
+            margin: 3px 0;
+            padding: 3px;
+        }
+        
+        .log-entry.info { color: #3B82F6; }
+        .log-entry.success { color: #10B981; }
+        .log-entry.warning { color: #F59E0B; }
+        .log-entry.error { color: #EF4444; }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin: 5px;
+        }
+        
+        .status.active {
+            background: #10B981;
+            color: white;
+        }
+        
+        .status.inactive {
+            background: #6B7280;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ Level Chaos - Système de Synergie ⚡</h1>
+        <p>Page de test pour le système de cartes modificateurs</p>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 État du Système</h2>
+        <div id="system-status">
+            <span class="status inactive">Chargement...</span>
+        </div>
+        <div id="current-state">
+            <p><strong>Cartes Actives:</strong> <span id="card-count">0</span></p>
+            <p><strong>Run:</strong> <span id="run-number">0</span></p>
+            <p><strong>Niveau:</strong> <span id="level-number">0</span></p>
+            <p><strong>Morts:</strong> <span id="death-count">0</span></p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 Actions de Test</h2>
+        <div class="button-group">
+            <button class="test-button success" onclick="testLevelComplete()">
+                🏆 Niveau Complété
+            </button>
+            <button class="test-button danger" onclick="testPlayerDeath()">
+                💀 Mort du Joueur
+            </button>
+            <button class="test-button primary" onclick="testShowCardSelection()">
+                🃏 Afficher Sélection de Cartes
+            </button>
+            <button class="test-button warning" onclick="testAddRandomCard()">
+                ➕ Ajouter Carte Aléatoire
+            </button>
+            <button class="test-button info" onclick="testCheckSynergies()">
+                ⚡ Vérifier Synergies
+            </button>
+            <button class="test-button" style="background: #6B7280;" onclick="testReset()">
+                🔄 Reset Complet
+            </button>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🃏 Cartes Disponibles</h2>
+        <p style="color: #888; font-size: 14px;">Cliquez sur une carte pour l'ajouter à votre inventaire</p>
+        <div id="card-database" class="card-preview"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Journal d'Événements</h2>
+        <button class="test-button" style="background: #6B7280; margin-bottom: 10px;" onclick="clearLog()">
+            Effacer le Journal
+        </button>
+        <div id="event-log" class="log"></div>
+    </div>
+    
+    <script src="./synergy-system.js"></script>
+    <script src="./game-integration.js"></script>
+    
+    <script>
+        let eventLog = [];
+        
+        // Override console.log to capture events
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.join(' ');
+            addLogEntry(message, 'info');
+        };
+        
+        function addLogEntry(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            eventLog.push({ timestamp, message, type });
+            updateLog();
+        }
+        
+        function updateLog() {
+            const logEl = document.getElementById('event-log');
+            logEl.innerHTML = eventLog.slice(-50).reverse().map(entry => 
+                `<div class="log-entry ${entry.type}">[${entry.timestamp}] ${entry.message}</div>`
+            ).join('');
+        }
+        
+        function clearLog() {
+            eventLog = [];
+            updateLog();
+        }
+        
+        function updateStatus() {
+            if (!window.synergySystem) {
+                setTimeout(updateStatus, 100);
+                return;
+            }
+            
+            const statusEl = document.getElementById('system-status');
+            statusEl.innerHTML = '<span class="status active">Système Actif</span>';
+            
+            const state = window.synergySystem.gameState;
+            document.getElementById('run-number').textContent = state.currentRun;
+            document.getElementById('level-number').textContent = state.currentLevel;
+            document.getElementById('death-count').textContent = state.deaths;
+            
+            const cardCount = window.synergySystem.inventory.getActiveCards().length;
+            document.getElementById('card-count').textContent = cardCount;
+        }
+        
+        function renderCardDatabase() {
+            if (!window.synergySystem) {
+                setTimeout(renderCardDatabase, 100);
+                return;
+            }
+            
+            const container = document.getElementById('card-database');
+            const cards = window.synergySystem.cards.cards;
+            
+            const rarityColors = {
+                common: '#9CA3AF',
+                uncommon: '#10B981',
+                rare: '#3B82F6',
+                epic: '#8B5CF6',
+                legendary: '#F59E0B'
+            };
+            
+            container.innerHTML = Object.values(cards).map(card => `
+                <div class="card-item" style="border-color: ${rarityColors[card.rarity]}" 
+                     onclick="addCardById('${card.id}')">
+                    <h3 style="color: ${rarityColors[card.rarity]}">${card.name}</h3>
+                    <p>${card.description}</p>
+                    <div class="meta">
+                        ${card.type === 'level' ? '🎨 Niveau' : '🛡️ Joueur'} | 
+                        ${card.rarity.toUpperCase()}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function testLevelComplete() {
+            addLogEntry('🎮 Test: Niveau complété', 'success');
+            const event = new CustomEvent('levelComplete', { detail: { test: true } });
+            window.dispatchEvent(event);
+            setTimeout(updateStatus, 100);
+        }
+        
+        function testPlayerDeath() {
+            addLogEntry('🎮 Test: Mort du joueur', 'error');
+            const event = new CustomEvent('playerDeath', { detail: { test: true } });
+            window.dispatchEvent(event);
+            setTimeout(updateStatus, 100);
+        }
+        
+        function testShowCardSelection() {
+            addLogEntry('🎮 Test: Affichage sélection de cartes', 'info');
+            if (window.synergySystem) {
+                window.synergySystem.ui.showCardSelection();
+            }
+        }
+        
+        function testAddRandomCard() {
+            if (!window.synergySystem) return;
+            
+            const cards = window.synergySystem.cards.getRandomCards(1);
+            if (cards.length > 0) {
+                addLogEntry(`🎮 Test: Ajout carte aléatoire - ${cards[0].name}`, 'warning');
+                window.synergySystem.addCardToInventory(cards[0].id);
+                setTimeout(updateStatus, 100);
+            }
+        }
+        
+        function testCheckSynergies() {
+            if (!window.synergySystem) return;
+            
+            addLogEntry('🎮 Test: Vérification des synergies', 'info');
+            window.synergySystem.checkSynergies();
+        }
+        
+        function testReset() {
+            addLogEntry('🎮 Test: Reset complet du système', 'warning');
+            localStorage.removeItem('synergyState');
+            location.reload();
+        }
+        
+        function addCardById(cardId) {
+            if (!window.synergySystem) return;
+            
+            const card = window.synergySystem.cards.getCard(cardId);
+            if (card) {
+                addLogEntry(`🃏 Carte ajoutée: ${card.name}`, 'success');
+                window.synergySystem.addCardToInventory(cardId);
+                setTimeout(updateStatus, 100);
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            addLogEntry('⚡ Page de test chargée', 'success');
+            updateStatus();
+            renderCardDatabase();
+            
+            // Update status periodically
+            setInterval(updateStatus, 1000);
+        });
+        
+        // Start a new run on load
+        setTimeout(() => {
+            if (window.synergySystem && window.synergySystem.gameState.currentRun === 0) {
+                window.synergySystem.gameState.startNewRun();
+                updateStatus();
+                addLogEntry('🎮 Nouvelle run démarrée automatiquement', 'success');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
